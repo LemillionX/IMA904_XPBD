@@ -4,6 +4,7 @@ Particle::Particle(VectorXd _p, VectorXd _v, double _m){
     setPos(_p);
     setSpeed(_v);
     setMass(_m);
+    forces = VectorXd::Zero(_p.rows());
 }
 
 void Particle::setPos(VectorXd _p){

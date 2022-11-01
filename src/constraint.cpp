@@ -1,5 +1,12 @@
 #include "constraint.h"
 
+Constraint::Constraint(double _alpha, double _stiffness, constraint_type _type){
+    setCompliance(_alpha);
+    setStiffness(_stiffness);
+    type = _type;
+}
+
+
 Constraint::Constraint(std::vector<ParticlePtr> _particles, double _alpha, double _stiffness, constraint_type _type){
     setParticles(_particles);
     setCompliance(_alpha);
@@ -28,8 +35,8 @@ void Constraint::setParticles(std::vector<ParticlePtr> _particles){
 }
 
 void Constraint::setGradient(std::vector<ParticlePtr> particles){
-    int n_cols = particles[0]->getPos().rows();
-    size_t n_rows = particles.size();
+    int n_rows = particles[0]->getPos().rows();
+    size_t n_cols = particles.size();
     grad = MatrixXd::Zero(n_rows, n_cols);
 
 }
@@ -67,9 +74,9 @@ void Constraint::solveConstraint(double dt) {
     double num = -value - alpha_t *lambda;
     double denom = alpha_t;
 
-    // Need to assert grad.rows() == particles.size()
-    for (int i = 0; i < grad.rows(); i++){
-        denom += particles[i]->getInvMass()*grad.row(i).norm()*grad.row(i).norm();
+    // Need to assert grad.cols() == particles.size()
+    for (int i = 0; i < grad.cols(); i++){
+        denom += particles[i]->getInvMass()*grad.col(i).norm()*grad.col(i).norm();
     }
 
     // Updating lambda and x
@@ -77,10 +84,13 @@ void Constraint::solveConstraint(double dt) {
     double deltaLambda = num/denom;
     for (size_t i = 0; i < particles.size(); i ++){
         VectorXd x = particles[i]->getPos();
-        VectorXd deltaX = particles[i]->getInvMass()*grad.row(i)*deltaLambda;
+        VectorXd deltaX = particles[i]->getInvMass()*grad.col(i)*deltaLambda;
         particles[i]->setPos(x + deltaX);
     }
 
     setLagrangeMultiplier(lambda + deltaLambda);
+
+    update();
+
 
 }

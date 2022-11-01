@@ -25,6 +25,7 @@ class Constraint {
 
     public:
         Constraint(){};
+        Constraint(double alpha, double stiffness = 1.0, constraint_type type = GENERAL_CONSTRAINT);
         Constraint(std::vector<ParticlePtr> particles, double alpha = 0.0, double stiffness = 1.0, constraint_type type = GENERAL_CONSTRAINT);
         ~Constraint(){};
 
@@ -33,7 +34,7 @@ class Constraint {
         void setCompliance(double alpha);
         void setLagrangeMultiplier(double lambda);
         void setParticles(std::vector<ParticlePtr> particles);
-        void setGradient(std::vector<ParticlePtr> particles);
+        virtual void setGradient(std::vector<ParticlePtr> particles);
 
         constraint_type getType() const;
         double getValue() const;
@@ -43,6 +44,7 @@ class Constraint {
         std::vector<ParticlePtr> getParticles() const;
         MatrixXd getGradient() const;
 
+        virtual void update() = 0;
         virtual void solveConstraint(double dt);
         
 
