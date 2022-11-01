@@ -1,0 +1,44 @@
+#include "particle.h"
+
+Particle::Particle(VectorXd _p, VectorXd _v, double _m){
+    setPos(_p);
+    setSpeed(_v);
+    setMass(_m);
+}
+
+void Particle::setPos(VectorXd _p){
+    p = _p;
+}
+
+void Particle::setSpeed(VectorXd _v){
+    v = _v;
+}
+
+void Particle::setMass(double _m){
+    m = _m;
+    w = 1.0/m;
+}
+
+void Particle::setForce(VectorXd _force){
+    forces = _force;
+}
+
+VectorXd Particle::getPos() const {
+    return p;
+}
+
+VectorXd Particle::getSpeed() const {
+    return v;
+}
+
+double Particle::getMass() const {
+    return m;
+}
+
+double Particle::getInvMass() const {
+    return w;
+}
+
+VectorXd Particle::getForce() const {
+    return forces;
+}

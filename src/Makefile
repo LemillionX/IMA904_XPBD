@@ -10,7 +10,7 @@ PROG = xpbd_prog
 #
 # Fichiers sources (NE PAS METTRE les .h ni les .o seulement les .cpp)
 #
-SOURCES = main.cpp pbd.cpp
+SOURCES = main.cpp pbd.cpp particle.cpp constraint.cpp
 
 #
 # Fichiers objets (ne pas modifier sauf si l'extension n'est pas .cpp)
