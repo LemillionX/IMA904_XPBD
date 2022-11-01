@@ -33,6 +33,7 @@ class Constraint {
         void setCompliance(double alpha);
         void setLagrangeMultiplier(double lambda);
         void setParticles(std::vector<ParticlePtr> particles);
+        void setGradient(std::vector<ParticlePtr> particles);
 
         constraint_type getType() const;
         double getValue() const;
@@ -40,6 +41,7 @@ class Constraint {
         double getCompliance() const;
         double getLagrangeMultiplier() const;
         std::vector<ParticlePtr> getParticles() const;
+        MatrixXd getGradient() const;
 
         virtual void solveConstraint(double dt);
         

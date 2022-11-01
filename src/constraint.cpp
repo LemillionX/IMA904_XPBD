@@ -27,6 +27,13 @@ void Constraint::setParticles(std::vector<ParticlePtr> _particles){
     particles = _particles;
 }
 
+void Constraint::setGradient(std::vector<ParticlePtr> particles){
+    int n_cols = particles[0]->getPos().rows();
+    size_t n_rows = particles.size();
+    grad = MatrixXd::Zero(n_rows, n_cols);
+
+}
+
 constraint_type Constraint::getType() const {
     return type;
 }
@@ -49,6 +56,10 @@ double Constraint::getLagrangeMultiplier() const {
 
 std::vector<ParticlePtr> Constraint::getParticles() const {
     return particles;
+}
+
+MatrixXd Constraint::getGradient() const {
+    return grad;
 }
 
 void Constraint::solveConstraint(double dt) {
