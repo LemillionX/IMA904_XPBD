@@ -1,4 +1,71 @@
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+
+#include <cmath>
 #include "pbd.h"
+#include "camera.h"
+#include "floor.h"
+
+// Colors
+GLfloat WHITE[] = {1, 1, 1};
+GLfloat RED[] = {1, 0, 0};
+GLfloat GREEN[] = {0, 1, 0};
+GLfloat MAGENTA[] = {1, 0, 1};
+
+// Initialize Objects
+Camera camera;
+Floor scene_floor(20, 20);
+
+// Application-specific initialization: Set up global lighting parameters and create display lists.
+void init() {
+  glEnable(GL_DEPTH_TEST);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, WHITE);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, WHITE);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, WHITE);
+  glMaterialf(GL_FRONT, GL_SHININESS, 30);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  scene_floor.create();
+
+}
+
+// Draws one frame, the floor from the current camera position.
+void display() {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glLoadIdentity();
+  gluLookAt(camera.getX(), camera.getY(), camera.getZ(),
+            scene_floor.centerx(), 0.0, scene_floor.centerz(),
+            0.0, 1.0, 0.0);
+  scene_floor.draw();
+  glFlush();
+  glutSwapBuffers();
+}
+
+// On reshape, constructs a camera that perfectly fits the window.
+void reshape(GLint w, GLint h) {
+  glViewport(0, 0, w, h);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(40.0, GLfloat(w) / GLfloat(h), 1.0, 150.0);
+  glMatrixMode(GL_MODELVIEW);
+}
+
+// Requests to draw the next frame.
+void timer(int v) {
+  glutPostRedisplay();
+  glutTimerFunc(1000/60, timer, v);
+}
+
+// Moves the camera according to the key pressed, then ask to refresh the display.
+void special(int key, int, int) {
+  switch (key) {
+    case GLUT_KEY_LEFT: camera.moveLeft(); break;
+    case GLUT_KEY_RIGHT: camera.moveRight(); break;
+    case GLUT_KEY_UP: camera.moveUp(); break;
+    case GLUT_KEY_DOWN: camera.moveDown(); break;
+  }
+  glutPostRedisplay();
+}
 
 void test_build_eigen(){
     std::cout << " Test build eigen : " << std::endl;
@@ -64,8 +131,19 @@ void test_solve_dist_constraint(){
     std::cout << " Particle 2 position : " << RowVectorXd(c1.getParticles()[1]->getPos()) << std::endl;
 }
 
-int main(){
+int main(int argc, char** argv){
     std::cout << " Hello world !" << std::endl;
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowPosition(80, 80);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("XPBD");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutSpecialFunc(special);
+    glutTimerFunc(100, timer, 0);
+    init();
+    glutMainLoop();
 
     return 0;
 }

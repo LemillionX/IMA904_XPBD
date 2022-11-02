@@ -24,7 +24,7 @@ OBJETS = ${SOURCES:%.cpp=$(BUILDDIR)/%.o}
 #
 # Compilateur C++
 #
-CXX = c++
+CXX = g++
 
 #
 # Options du compilateur C++
@@ -33,7 +33,9 @@ CXX = c++
 # Exemple: CXXFLAGS= -std=c++11 -Wall -O -I/usr/local/qt/include
 #
 CXXFLAGS = -std=c++11 -Wall -g -I ../
-
+CXX_FLAGS +=
+CXX_FLAGS += -m64 -march=native
+CXX_FLAGS += -fopt-info-vec-optimized #-fopt-info-vec-missed -ftree-vectorize
 #
 # Options de l'editeur de liens
 #
@@ -43,7 +45,7 @@ LDFLAGS =
 # Librairies a utiliser
 # Exemple: LDLIBS = -L/usr/local/qt/lib -lqt
 #
-LDLIBS =
+LDLIBS = -lGL -lGLU -lglut -lpthread 
 
 
 ##########################################
