@@ -19,7 +19,8 @@ GLfloat GREEN[] = {0, 1, 0};
 GLfloat MAGENTA[] = {1, 0, 1};
 
 // Initialize Objects
-const float dt = 1000 / 60; // in ms, e.g : 1000/frame rate
+const int FPS = 60;
+const float dt = 1000 / FPS; // in ms, e.g : 1000/frame rate
 const Vector3d gravity(0.0, -9.81, 0.0);
 const double compliance = 0.01; // compliance coeff for XPBD
 
@@ -32,8 +33,8 @@ void init_objects()
 {
     SpherePtr sphere1(new Sphere(0.2, 10.0, 1.0, 10.0, 1.0, GREEN));
     SpherePtr sphere2(new Sphere(0.2, 10.0, 3.0, 10.0, 1.0, BLUE));
-    sphere1->vertices[0]->setForce(gravity);
-    sphere2->vertices[0]->setForce(gravity);
+    sphere1->vertices[0]->setForce(sphere1->vertices[0]->getMass()*gravity);
+    sphere2->vertices[0]->setForce(sphere2->vertices[0]->getMass()*gravity);
 
     lst_objects.push_back(sphere1);
     lst_objects.push_back(sphere2);
@@ -42,7 +43,7 @@ void init_objects()
 void init_constraints()
 {
     constraints.push_back(std::make_shared<DistConstraint>(lst_objects[0]->vertices[0], lst_objects[1]->vertices[0], 1.0, compliance));
-    constraints.push_back(std::make_shared<FixedConstraint>(lst_objects[0]->vertices[0], lst_objects[0]->vertices[0]->getPos()));
+    constraints.push_back(std::make_shared<FixedConstraint>(lst_objects[1]->vertices[0], lst_objects[1]->vertices[0]->getPos()));
 }
 
 // Application-specific initialization: Set up global lighting parameters and create display lists.
@@ -56,6 +57,10 @@ void init()
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     scene_floor.create();
+
+    camera.setX(scene_floor.centerx());
+    camera.setZ(scene_floor.centerz()-6);
+
     init_objects();
     init_constraints();
 }
@@ -68,7 +73,7 @@ void update(double _dt){
     for (auto &obj : lst_objects){
         for (auto& vertex: obj->vertices){
             old_pos.push_back(vertex->getPos()); // Store old position
-            vertex->setSpeed(vertex->getSpeed() + _dt*vertex->getForce()); // Implicit Euler
+            vertex->setSpeed(vertex->getSpeed() + _dt*vertex->getForce()*vertex->getInvMass()); // Implicit Euler
             vertex->setPos(vertex->getPos() + _dt*vertex->getSpeed()); // Implicit Euler
         }
     }
@@ -79,7 +84,7 @@ void update(double _dt){
     }
 
     // Solving constraints
-    int n_iter = 20;
+    int n_iter = 40;
     for (int i = 0; i < n_iter; i++)
     {
         for (auto& c : constraints){
@@ -105,9 +110,11 @@ void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
+    
     gluLookAt(camera.getX(), camera.getY(), camera.getZ(),
-              scene_floor.centerx(), 0.0, scene_floor.centerz(),
-              0.0, 1.0, 0.0);
+              camera.getTargetX(), camera.getTargetY(),  camera.getTargetZ(),
+              camera.getUpX(), camera.getUpY(), camera.getUpZ());
+    
     scene_floor.draw();
 
 
@@ -152,10 +159,18 @@ void special(int key, int, int)
         camera.moveRight();
         break;
     case GLUT_KEY_UP:
-        camera.moveUp();
+        if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
+            camera.moveForward();
+        } else {
+            camera.moveUp();
+        }
         break;
     case GLUT_KEY_DOWN:
-        camera.moveDown();
+        if (glutGetModifiers() == GLUT_ACTIVE_CTRL){
+            camera.moveBack();
+        } else {
+            camera.moveDown();
+        }
         break;
     }
     glutPostRedisplay();
