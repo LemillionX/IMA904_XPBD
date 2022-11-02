@@ -24,6 +24,10 @@ void Particle::setForce(VectorXd _force){
     forces = _force;
 }
 
+void Particle::addForce(VectorXd f){
+    forces += f;
+}
+
 VectorXd Particle::getPos() const {
     return p;
 }

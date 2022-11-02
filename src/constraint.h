@@ -10,6 +10,7 @@ typedef std::shared_ptr<Particle> ParticlePtr;
 
 enum constraint_type {
     DISTANCE_CONSTRAINT,
+    FIXED_CONSTRAINT,
     GENERAL_CONSTRAINT
 };
 

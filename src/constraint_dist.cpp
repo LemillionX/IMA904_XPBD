@@ -11,6 +11,8 @@ DistConstraint::DistConstraint(ParticlePtr p1, ParticlePtr p2, double _l0, doubl
     setGradient(_particles);
 }
 
+
+
 double DistConstraint::getRestLength() const {
     return l0;
 }

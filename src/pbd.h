@@ -6,6 +6,7 @@
 #include "particle.h"
 #include "constraint.h"
 #include "constraint_dist.h"
+#include "constraint_fixed.h"
 
 class PBD {
 };

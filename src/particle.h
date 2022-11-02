@@ -21,6 +21,7 @@ class Particle {
         void setSpeed(VectorXd v);
         void setMass(double m);
         void setForce(VectorXd forces);
+        void addForce(VectorXd f);
         
         VectorXd getPos() const;
         VectorXd getSpeed() const;
