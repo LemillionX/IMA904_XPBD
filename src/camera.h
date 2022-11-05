@@ -29,7 +29,6 @@ public:
   double getY() { return y; }
   double getZ() { return z; }
   double getTargetX() { return target_x; }
-  double getTargetX() { return target_x; }
   double getTargetY() { return target_y; }
   double getTargetZ() { return target_z; }
   double getUpX() { return up_x; }

@@ -19,7 +19,7 @@ class Object {
 
         Object(){};
         Object(double x, double y, double z, double m, GLfloat* c, VectorXd _v = VectorXd::Zero(3)){VectorXd _pos(3); _pos << x,y,z; setPos(_pos); setMass(m); setSpeed(v); color=c; };
-        ~Object(){};
+        virtual ~Object(){};
 
         void setMass(double m){mass = m;};
         void setPos(VectorXd _pos) {pos = _pos;};

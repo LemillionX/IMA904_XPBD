@@ -28,7 +28,7 @@ class Constraint {
         Constraint(){};
         Constraint(double alpha, double stiffness = 1.0, constraint_type type = GENERAL_CONSTRAINT);
         Constraint(std::vector<ParticlePtr> particles, double alpha = 0.0, double stiffness = 1.0, constraint_type type = GENERAL_CONSTRAINT);
-        ~Constraint(){};
+        virtual ~Constraint(){};
 
         void setValue(double value);
         void setStiffness(double s);
