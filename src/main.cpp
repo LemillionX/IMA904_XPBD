@@ -6,10 +6,12 @@
 #include "camera.h"
 #include "floor.h"
 #include "sphere.h"
+#include "cloth.h"
 
 typedef std::shared_ptr<Object> ObjectPtr;
 typedef std::shared_ptr<Constraint> ConstraintPtr;
 typedef std::shared_ptr<Sphere> SpherePtr;
+typedef std::shared_ptr<Cloth> ClothPtr;
 
 // Colors
 GLfloat WHITE[] = {1, 1, 1};
@@ -31,19 +33,33 @@ std::vector<ConstraintPtr> constraints;
 
 void init_objects()
 {
-    SpherePtr sphere1(new Sphere(0.2, 10.0, 1.0, 10.0, 1.0, GREEN));
-    SpherePtr sphere2(new Sphere(0.2, 10.0, 3.0, 10.0, 1.0, BLUE));
-    sphere1->vertices[0]->setForce(sphere1->vertices[0]->getMass()*gravity);
-    sphere2->vertices[0]->setForce(sphere2->vertices[0]->getMass()*gravity);
+    //SpherePtr sphere1(new Sphere(0.2, 10.0, 1.0, 10.0, 1.0, GREEN));
+    //SpherePtr sphere2(new Sphere(0.2, 10.0, 3.0, 10.0, 1.0, BLUE));
+    //sphere1->vertices[0]->setForce(sphere1->vertices[0]->getMass()*gravity);
+    //sphere2->vertices[0]->setForce(sphere2->vertices[0]->getMass()*gravity);
+    ClothPtr cloth1(new Cloth(20, 10, 5.0, 4.0, 15.0, 5.0, MAGENTA, 0.1));
 
-    lst_objects.push_back(sphere1);
-    lst_objects.push_back(sphere2);
+    //lst_objects.push_back(sphere1);
+    //lst_objects.push_back(sphere2);
+    lst_objects.push_back(cloth1);
+    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[0], cloth1->vertices[0]->getPos()));
+    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[cloth1->getWidth()-1], cloth1->vertices[cloth1->getWidth()-1]->getPos()));
+    for (int i = 0; i < cloth1->vertices.size(); i++){
+        cloth1->vertices[i]->setForce(cloth1->vertices[i]->getMass()*gravity);
+        if (i < (cloth1->getLength()-1)*cloth1->getWidth() ){
+            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+cloth1->getWidth()], cloth1->getStep(), compliance));
+        }
+        if (i% cloth1->getWidth() < cloth1->getWidth() -1 ){
+            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+1], cloth1->getStep(), compliance));
+        } 
+    }
 }
 
 void init_constraints()
 {
-    constraints.push_back(std::make_shared<DistConstraint>(lst_objects[0]->vertices[0], lst_objects[1]->vertices[0], 1.0, compliance));
-    constraints.push_back(std::make_shared<FixedConstraint>(lst_objects[1]->vertices[0], lst_objects[1]->vertices[0]->getPos()));
+    //constraints.push_back(std::make_shared<DistConstraint>(lst_objects[0]->vertices[0], lst_objects[1]->vertices[0], 1.0, compliance));
+    //constraints.push_back(std::make_shared<FixedConstraint>(lst_objects[1]->vertices[0], lst_objects[1]->vertices[0]->getPos()));
+
 }
 
 // Application-specific initialization: Set up global lighting parameters and create display lists.
@@ -84,7 +100,7 @@ void update(double _dt){
     }
 
     // Solving constraints
-    int n_iter = 40;
+    int n_iter = 20;
     for (int i = 0; i < n_iter; i++)
     {
         for (auto& c : constraints){
