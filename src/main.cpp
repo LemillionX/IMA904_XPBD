@@ -21,7 +21,7 @@ GLfloat GREEN[] = {0, 1, 0};
 GLfloat MAGENTA[] = {1, 0, 1};
 
 // Initialize Objects
-const int FPS = 60;
+const int FPS = 120;
 const float dt = 1000 / FPS; // in ms, e.g : 1000/frame rate
 const Vector3d gravity(0.0, -9.81, 0.0);
 const double compliance = 0.01; // compliance coeff for XPBD
@@ -37,7 +37,7 @@ void init_objects()
     //SpherePtr sphere2(new Sphere(0.2, 10.0, 3.0, 10.0, 1.0, BLUE));
     //sphere1->vertices[0]->setForce(sphere1->vertices[0]->getMass()*gravity);
     //sphere2->vertices[0]->setForce(sphere2->vertices[0]->getMass()*gravity);
-    ClothPtr cloth1(new Cloth(20, 10, 5.0, 4.0, 15.0, 5.0, MAGENTA, 0.1));
+    ClothPtr cloth1(new Cloth(30, 30, 9.0, 3.5, 8.0, 1.0, MAGENTA, 0.1));
 
     //lst_objects.push_back(sphere1);
     //lst_objects.push_back(sphere2);
@@ -47,10 +47,10 @@ void init_objects()
     for (int i = 0; i < cloth1->vertices.size(); i++){
         cloth1->vertices[i]->setForce(cloth1->vertices[i]->getMass()*gravity);
         if (i < (cloth1->getLength()-1)*cloth1->getWidth() ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+cloth1->getWidth()], cloth1->getStep(), compliance));
+            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+cloth1->getWidth()], (cloth1->vertices[i+cloth1->getWidth()]->getPos() - cloth1->vertices[i]->getPos() ).norm(), compliance));
         }
         if (i% cloth1->getWidth() < cloth1->getWidth() -1 ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+1], cloth1->getStep(), compliance));
+            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+1], (cloth1->vertices[i+1]->getPos() - cloth1->vertices[i]->getPos()).norm(), compliance));
         } 
     }
 }
@@ -139,11 +139,10 @@ void display()
         obj->draw();
     }
 
-    update(dt/1000); // dt/1000 because dt is in ms
-
-
     glFlush();
     glutSwapBuffers();
+    update(dt/1000); // dt/1000 because dt is in ms
+
 }
 
 // On reshape, constructs a camera that perfectly fits the window.
@@ -159,8 +158,9 @@ void reshape(GLint w, GLint h)
 // Requests to draw the next frame.
 void timer(int v)
 {
-    glutPostRedisplay();
     glutTimerFunc(dt, timer, v);
+    glutPostRedisplay();
+
 }
 
 // Moves the camera according to the key pressed, then ask to refresh the display.

@@ -12,7 +12,7 @@ Cloth::Cloth(int _width, int _length, double x, double y, double z, double _m, G
     {
         for (int j = 0; j < width; j++)
         {
-            vertices.push_back(std::make_shared<Particle>(Particle(pos + Vector3d(j*step, -i*step, 0), _v, _m/(width*length))));
+            vertices.push_back(std::make_shared<Particle>(Particle(pos + Vector3d(j*step, 0, -i*step), _v, _m/(width*length))));
         }
     }
 }
@@ -22,7 +22,7 @@ void Cloth::draw() const
     GLfloat WHITE[] = {1, 1, 1};
     GLfloat BLUE[] = {0, 0, 1};
     glBegin(GL_QUADS);
-    glNormal3d(0, 1, 0);
+    glNormal3d(0, 0, 1);
     int i; // count
     for (int x = 1; x < length; x++)
     {

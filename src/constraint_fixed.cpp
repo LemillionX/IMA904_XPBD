@@ -9,10 +9,9 @@ FixedConstraint::FixedConstraint(ParticlePtr p, VectorXd p0, double alpha, doubl
 }
 
 void FixedConstraint::setGradient(std::vector<ParticlePtr> _particles){
-    ParticlePtr p = _particles[0];
-    int n_rows = p->getPos().rows();
+    int n_rows =  _particles[0]->getPos().rows();
     grad = MatrixXd::Zero(n_rows, 1);
-    grad.col(0) = (p->getPos() - rest_pos) .normalized();
+    grad.col(0) = ( _particles[0]->getPos() - rest_pos) .normalized();
 }
 
 void FixedConstraint::update(){

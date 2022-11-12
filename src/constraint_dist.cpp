@@ -18,11 +18,9 @@ double DistConstraint::getRestLength() const {
 }
 
 void DistConstraint::setGradient(std::vector<ParticlePtr> _particles){
-    ParticlePtr p0 = _particles[0];
-    ParticlePtr p1 = _particles[1];
-    int n_rows = p0->getPos().rows();
+    int n_rows = _particles[0]->getPos().rows();
     grad = MatrixXd::Zero(n_rows, 2);
-    VectorXd dir =  (p0->getPos() - p1->getPos()).normalized();
+    VectorXd dir =  (_particles[0]->getPos() - _particles[1]->getPos()).normalized();
     grad.col(0) = dir;
     grad.col(1) = -dir;
 }
