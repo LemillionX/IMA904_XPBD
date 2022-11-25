@@ -6,17 +6,20 @@
 # Nom du programme
 #
 PROG = xpbd_prog
+SPRING = spring
 
 #
 # Fichiers sources (NE PAS METTRE les .h ni les .o seulement les .cpp)
 #
 SOURCES = main.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp
+SPRING_SOURCES = spring.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp
 
 #
 # Fichiers objets (ne pas modifier sauf si l'extension n'est pas .cpp)
 #
 BUILDDIR = ../build
 OBJETS = ${SOURCES:%.cpp=$(BUILDDIR)/%.o}
+SPRING_OBJETS = ${SPRING_SOURCES:%.cpp=$(BUILDDIR)/%.o}
 
 
 
@@ -54,7 +57,7 @@ LDLIBS = -lGL -lGLU -lglut -lpthread
 # depend-${PROG} sera un fichier contenant les dependances
 #
  
-all: ${PROG}
+all: ${PROG} ${SPRING}
 
 run: ${PROG}
 	./${PROG}
@@ -63,12 +66,14 @@ run: ${PROG}
 ${PROG}: depend-${PROG} ${OBJETS}
 	${CXX} -o $@ ${CXXFLAGS} ${LDFLAGS} ${OBJETS} ${LDLIBS}
 
-	
+${SPRING}: depend-${SPRING} ${SPRING_OBJETS}
+	${CXX} -o $@ ${CXXFLAGS} ${LDFLAGS} ${SPRING_OBJETS} ${LDLIBS}
+
 clean:
-	-@$(RM) -r $(BUILDDIR) depend-${PROG} core 1>/dev/null 2>&1
+	-@$(RM) -r $(BUILDDIR) depend-${PROG} depend-${SPRING} core 1>/dev/null 2>&1
 
 clean-all: clean
-	-@$(RM) ${PROG} 1>/dev/null 2>&1
+	-@$(RM) ${PROG} -${SPRING} 1>/dev/null 2>&1
   
 
 # Gestion des dependances : creation automatique des dependances en utilisant 
@@ -76,6 +81,10 @@ clean-all: clean
 #
 depend-${PROG}:
 	${CXX} ${CXXFLAGS} -MM ${SOURCES} > depend-${PROG}
+
+depend-${SPRING}:
+	${CXX} ${CXXFLAGS} -MM ${SPRING_SOURCES} > depend-${SPRING}
+
 
 ###########################################
 #
@@ -104,3 +113,4 @@ $(BUILDDIR)/%.o: %.cpp
 # Inclusion du fichier des dependances
 #
 -include depend-${PROG}
+-include depend-${SPRING}
