@@ -20,12 +20,16 @@ GLfloat BLUE[] = {0, 0, 1};
 GLfloat GREEN[] = {0, 1, 0};
 GLfloat MAGENTA[] = {1, 0, 1};
 
-// Initialize Objects
+// Simulation Settings
 const int FPS = 120;
 const float dt = 1000 / FPS; // in ms, e.g : 1000/frame rate
 const Vector3d gravity(0.0, -9.81, 0.0);
 const double compliance = 0.01; // compliance coeff for XPBD
+const int N_ITER = 40;
+const float SPEED_DAMPING = 0.95;
 
+
+// Initialize Global Objects
 Camera camera;
 Floor scene_floor(20, 20);
 std::vector<ObjectPtr> lst_objects;
@@ -42,17 +46,23 @@ void init_objects()
     //lst_objects.push_back(sphere1);
     //lst_objects.push_back(sphere2);
     lst_objects.push_back(cloth1);
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[0], cloth1->vertices[0]->getPos()));
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[cloth1->getWidth()-1], cloth1->vertices[cloth1->getWidth()-1]->getPos()));
+
+    // Fixed Constraint
+    //constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[0], cloth1->vertices[0]->getPos()));
+    //constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[cloth1->getWidth()-1], cloth1->vertices[cloth1->getWidth()-1]->getPos()));
     for (int i = 0; i < cloth1->vertices.size(); i++){
         cloth1->vertices[i]->setForce(cloth1->vertices[i]->getMass()*gravity);
         if (i < (cloth1->getLength()-1)*cloth1->getWidth() ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+cloth1->getWidth()], (cloth1->vertices[i+cloth1->getWidth()]->getPos() - cloth1->vertices[i]->getPos() ).norm(), compliance));
+            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+cloth1->getWidth()], (cloth1->vertices[i+cloth1->getWidth()]->getPos() - cloth1->vertices[i]->getPos() ).norm(), compliance, 0.5));
         }
         if (i% cloth1->getWidth() < cloth1->getWidth() -1 ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+1], (cloth1->vertices[i+1]->getPos() - cloth1->vertices[i]->getPos()).norm(), compliance));
+            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+1], (cloth1->vertices[i+1]->getPos() - cloth1->vertices[i]->getPos()).norm(), compliance, 0.5));
         } 
     }
+
+    // Fixed Constraint
+    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[0], cloth1->vertices[0]->getPos()));
+    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[cloth1->getWidth()-1], cloth1->vertices[cloth1->getWidth()-1]->getPos()));
 }
 
 void init_constraints()
@@ -91,6 +101,7 @@ void update(double _dt){
             old_pos.push_back(vertex->getPos()); // Store old position
             vertex->setSpeed(vertex->getSpeed() + _dt*vertex->getForce()*vertex->getInvMass()); // Implicit Euler
             vertex->setPos(vertex->getPos() + _dt*vertex->getSpeed()); // Implicit Euler
+            vertex->setSpeed(SPEED_DAMPING*vertex->getSpeed());// Damping for speed
         }
     }
 
@@ -100,8 +111,7 @@ void update(double _dt){
     }
 
     // Solving constraints
-    int n_iter = 20;
-    for (int i = 0; i < n_iter; i++)
+    for (int i = 0; i < N_ITER; i++)
     {
         for (auto& c : constraints){
             c->solveConstraint(_dt);
@@ -113,6 +123,7 @@ void update(double _dt){
     for (auto &obj : lst_objects){
         for (auto& vertex: obj->vertices){
             vertex->setSpeed((vertex->getPos() - old_pos[count])/_dt);
+            vertex->setSpeed(SPEED_DAMPING*vertex->getSpeed());// Damping for speed
             count++;
         }
     }

@@ -11,7 +11,7 @@ class FixedConstraint : public Constraint {
         FixedConstraint(ParticlePtr p, VectorXd p0, double alpha = 0.00001, double stiffness = 1.0);
         ~FixedConstraint(){};
 
-        void setGradient(std::vector<ParticlePtr> particles) override;
+        void setGradient() override;
         void update() override;
 };
 

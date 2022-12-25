@@ -12,7 +12,7 @@ class DistConstraint : public Constraint {
         ~DistConstraint(){};
 
         double getRestLength() const ;
-        void setGradient(std::vector<ParticlePtr> particles) override;
+        void setGradient() override;
         void update() override;
 };
 

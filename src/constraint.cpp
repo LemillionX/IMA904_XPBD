@@ -34,7 +34,7 @@ void Constraint::setParticles(std::vector<ParticlePtr> _particles){
     particles = _particles;
 }
 
-void Constraint::setGradient(std::vector<ParticlePtr> particles){
+void Constraint::setGradient(){
     int n_rows = particles[0]->getPos().rows();
     size_t n_cols = particles.size();
     grad = MatrixXd::Zero(n_rows, n_cols);
@@ -70,25 +70,28 @@ MatrixXd Constraint::getGradient() const {
 }
 
 void Constraint::solveConstraint(double dt) {
-    double alpha_t = alpha/(dt*dt);
-    double num = -value - alpha_t *lambda;
-    double denom = alpha_t;
+    if (type != FIXED_CONSTRAINT){
+        double alpha_t = alpha/(dt*dt);
+        double num = -value - alpha_t *lambda;
+        double denom = alpha_t;
 
-    // Need to assert grad.cols() == particles.size()
-    for (int i = 0; i < grad.cols(); i++){
-        denom += particles[i]->getInvMass()*grad.col(i).norm()*grad.col(i).norm();
+        // Need to assert grad.cols() == particles.size()
+        for (int i = 0; i < grad.cols(); i++){
+            denom += particles[i]->getInvMass()*grad.col(i).norm()*grad.col(i).norm();
+        }
+
+        // Updating lambda and x
+        // Don't forget to store the particle at the GLOBAL solving before
+        double deltaLambda = num/denom;
+        for (size_t i = 0; i < particles.size(); i ++){
+            VectorXd x = particles[i]->getPos();
+            VectorXd deltaX = particles[i]->getInvMass()*grad.col(i)*deltaLambda;
+            particles[i]->setPos(x + deltaX);
+        }
+
+        setLagrangeMultiplier(lambda + deltaLambda);
     }
 
-    // Updating lambda and x
-    // Don't forget to store the particle at the GLOBAL solving before
-    double deltaLambda = num/denom;
-    for (size_t i = 0; i < particles.size(); i ++){
-        VectorXd x = particles[i]->getPos();
-        VectorXd deltaX = particles[i]->getInvMass()*grad.col(i)*deltaLambda;
-        particles[i]->setPos(x + deltaX);
-    }
-
-    setLagrangeMultiplier(lambda + deltaLambda);
 
     update();
 

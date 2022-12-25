@@ -11,6 +11,8 @@ typedef std::shared_ptr<Particle> ParticlePtr;
 enum constraint_type {
     DISTANCE_CONSTRAINT,
     FIXED_CONSTRAINT,
+    BENDING_CONSTRAINT,
+    ISOBENDING_CONSTRAINT,
     GENERAL_CONSTRAINT
 };
 
@@ -35,7 +37,7 @@ class Constraint {
         void setCompliance(double alpha);
         void setLagrangeMultiplier(double lambda);
         void setParticles(std::vector<ParticlePtr> particles);
-        virtual void setGradient(std::vector<ParticlePtr> particles);
+        virtual void setGradient();
 
         constraint_type getType() const;
         double getValue() const;
