@@ -7,6 +7,8 @@
 #include "constraint.h"
 #include "constraint_dist.h"
 #include "constraint_fixed.h"
+#include "constraint_isobending.h"
+#include "constraint_bending.h"
 
 class PBD {
 };

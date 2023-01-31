@@ -18,12 +18,18 @@ GLfloat BLUE[] = {0, 0, 1};
 GLfloat GREEN[] = {0, 1, 0};
 GLfloat MAGENTA[] = {1, 0, 1};
 
-// Initialize Objects
+// Simulation Settings
 const int FPS = 60;
 const float dt = 1000 / FPS; // in ms, e.g : 1000/frame rate
 const Vector3d gravity(0.0, -9.81, 0.0);
 const double compliance = 0.01; // compliance coeff for XPBD
 
+// Camera movement
+int xOrigin = -1;
+int yOrigin = -1;
+double stepRot = 0.00005;
+
+// Initialize Global Objects
 Camera camera;
 Floor scene_floor(20, 20);
 std::vector<ObjectPtr> lst_objects;
@@ -147,6 +153,35 @@ void timer(int v)
     glutTimerFunc(dt, timer, v);
 }
 
+// Update the camera rotation when the mouse is moving
+void mouseMove(int x, int y){
+    if (xOrigin >= 0){
+        double deltaAngleX = (x-xOrigin)*stepRot;
+        //std::cout << " x = " << x << ", < xOrigin = " << xOrigin << ", delta =  " << deltaAngleX << std::endl;
+        camera.setAngleX(camera.getAngleX() + deltaAngleX);
+    }
+    if (yOrigin >= 0){
+        double deltaAngleY = (y-yOrigin)*stepRot;
+        //std::cout << " y = " << y << ", < yOrigin = " << yOrigin << ", delta =  " << deltaAngleY << std::endl;
+        camera.setAngleY(camera.getAngleY() + deltaAngleY);
+    }
+}
+
+// Called each time a button of the mouse is pressed
+void mouseButton(int key, int state, int x, int y){
+    if (key == GLUT_LEFT_BUTTON){
+        if (state == GLUT_UP){
+            xOrigin = -1;
+            yOrigin = -1;
+        } 
+        else {
+            xOrigin = x;
+            yOrigin = y;
+        }
+    }
+}
+
+
 // Moves the camera according to the key pressed, then ask to refresh the display.
 void special(int key, int, int)
 {
@@ -252,17 +287,26 @@ void test_solve_dist_constraint()
 int main(int argc, char **argv)
 {
     std::cout << " Hello world !" << std::endl;
+    // Init GLUT and create window
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowPosition(80, 80);
     glutInitWindowSize(800, 600);
     glutCreateWindow("XPBD");
+
+    // Register callbacks
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutSpecialFunc(special);
-    glutTimerFunc(100, timer, 0);
-    init();
-    glutMainLoop();
+    glutMouseFunc(mouseButton);
+    glutMotionFunc(mouseMove);
 
+    glutTimerFunc(100, timer, 0);
+
+    // Initialise the scene
+    init();
+
+    // Enter the main loop
+    glutMainLoop();
     return 0;
 }

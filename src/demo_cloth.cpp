@@ -28,7 +28,7 @@ const Vector3d gravity(0.0, -9.81, 0.0);
 const double compliance = 0.01; // compliance coeff for XPBD
 const int N_ITER = 40;
 const float SPEED_DAMPING = 0.995;
-const int CLOTH_RESOLUTION = 12; 
+const int CLOTH_RESOLUTION = 10; 
 const double CLOTH_SIZE = 2;
 unsigned int TIME = 0;
 

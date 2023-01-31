@@ -7,12 +7,15 @@
 #
 PROG = xpbd_prog
 SPRING = spring
+CLOTH = cloth
 
 #
 # Fichiers sources (NE PAS METTRE les .h ni les .o seulement les .cpp)
 #
-SOURCES = main.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp
-SPRING_SOURCES = spring.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp
+SOURCES = main.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp
+SPRING_SOURCES = spring.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp constraint_isobending.cpp constraint_bending.cpp
+CLOTH_SOURCES = demo_cloth.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp
+
 
 #
 # Fichiers objets (ne pas modifier sauf si l'extension n'est pas .cpp)
@@ -20,8 +23,7 @@ SPRING_SOURCES = spring.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.
 BUILDDIR = ../build
 OBJETS = ${SOURCES:%.cpp=$(BUILDDIR)/%.o}
 SPRING_OBJETS = ${SPRING_SOURCES:%.cpp=$(BUILDDIR)/%.o}
-
-
+CLOTH_OBJETS = ${CLOTH_SOURCES:%.cpp=$(BUILDDIR)/%.o}
 
 
 #
@@ -57,7 +59,7 @@ LDLIBS = -lGL -lGLU -lglut -lpthread
 # depend-${PROG} sera un fichier contenant les dependances
 #
  
-all: ${PROG} ${SPRING}
+all: ${PROG} ${SPRING} ${CLOTH}
 
 run: ${PROG}
 	./${PROG}
@@ -69,11 +71,14 @@ ${PROG}: depend-${PROG} ${OBJETS}
 ${SPRING}: depend-${SPRING} ${SPRING_OBJETS}
 	${CXX} -o $@ ${CXXFLAGS} ${LDFLAGS} ${SPRING_OBJETS} ${LDLIBS}
 
+${CLOTH}: depend-${CLOTH} ${CLOTH_OBJETS}
+	${CXX} -o $@ ${CXXFLAGS} ${LDFLAGS} ${CLOTH_OBJETS} ${LDLIBS}
+
 clean:
-	-@$(RM) -r $(BUILDDIR) depend-${PROG} depend-${SPRING} core 1>/dev/null 2>&1
+	-@$(RM) -r $(BUILDDIR) depend-${PROG} depend-${SPRING} depend-${CLOTH} core 1>/dev/null 2>&1
 
 clean-all: clean
-	-@$(RM) ${PROG} -${SPRING} 1>/dev/null 2>&1
+	-@$(RM) ${PROG} -${SPRING} -${CLOTH} 1>/dev/null 2>&1
   
 
 # Gestion des dependances : creation automatique des dependances en utilisant 
@@ -84,6 +89,9 @@ depend-${PROG}:
 
 depend-${SPRING}:
 	${CXX} ${CXXFLAGS} -MM ${SPRING_SOURCES} > depend-${SPRING}
+
+depend-${CLOTH}:
+	${CXX} ${CXXFLAGS} -MM ${CLOTH_SOURCES} > depend-${CLOTH}
 
 
 ###########################################
@@ -114,3 +122,4 @@ $(BUILDDIR)/%.o: %.cpp
 #
 -include depend-${PROG}
 -include depend-${SPRING}
+-include depend-${CLOTH}

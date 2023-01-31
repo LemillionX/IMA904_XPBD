@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-DistConstraint::DistConstraint(ParticlePtr p1, ParticlePtr p2, double _l0, double alpha, double stiffness) :  Constraint(alpha, stiffness, DISTANCE_CONSTRAINT){
+DistConstraint::DistConstraint(ParticlePtr p1, ParticlePtr p2, double _l0, double alpha, double stiffness) :  Constraint(alpha, stiffness, EQUALITY){
     std::vector<ParticlePtr> _particles = {p1,p2};
     l0 = _l0;
     setParticles(_particles);

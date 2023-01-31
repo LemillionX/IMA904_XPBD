@@ -9,11 +9,9 @@
 typedef std::shared_ptr<Particle> ParticlePtr;
 
 enum constraint_type {
-    DISTANCE_CONSTRAINT,
-    FIXED_CONSTRAINT,
-    BENDING_CONSTRAINT,
-    ISOBENDING_CONSTRAINT,
-    GENERAL_CONSTRAINT
+    EQUALITY,
+    INEQUALITY,
+    FIXED_CONSTRAINT
 };
 
 class Constraint {
@@ -28,8 +26,8 @@ class Constraint {
 
     public:
         Constraint(){};
-        Constraint(double alpha, double stiffness = 1.0, constraint_type type = GENERAL_CONSTRAINT);
-        Constraint(std::vector<ParticlePtr> particles, double alpha = 0.0, double stiffness = 1.0, constraint_type type = GENERAL_CONSTRAINT);
+        Constraint(double alpha, double stiffness = 1.0, constraint_type type = EQUALITY);
+        Constraint(std::vector<ParticlePtr> particles, double alpha = 0.0, double stiffness = 1.0, constraint_type type = EQUALITY);
         virtual ~Constraint(){};
 
         void setValue(double value);
