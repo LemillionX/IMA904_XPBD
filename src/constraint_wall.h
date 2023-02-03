@@ -14,7 +14,7 @@ class WallConstraint : public Constraint {
         WallConstraint(ParticlePtr q, Vector3d p1, Vector3d p2, Vector3d p3, double h, double alpha, double stiffness = 1.0);
         ~WallConstraint(){};
 
-        double getWidth() const;
+        double getThickness() const;
         void setGradient() override;
         void update() override;
 };

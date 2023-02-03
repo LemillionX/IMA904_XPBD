@@ -1,5 +1,5 @@
-demo_cloth.o: demo_cloth.cpp ../imgui/imgui.h ../imgui/imconfig.h pbd.h \
- particle.h ../Eigen/Dense ../Eigen/Core \
+wall.o: wall.cpp ../imgui/imgui.h ../imgui/imconfig.h pbd.h particle.h \
+ ../Eigen/Dense ../Eigen/Core \
  ../Eigen/src/Core/util/DisableStupidWarnings.h \
  ../Eigen/src/Core/util/Macros.h \
  ../Eigen/src/Core/util/ConfigureVectorization.h \

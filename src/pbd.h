@@ -10,6 +10,7 @@
 #include "constraint_isobending.h"
 #include "constraint_bending.h"
 #include "constraint_wall.h"
+#include "constraint_penetration.h"
 
 class PBD {
 };

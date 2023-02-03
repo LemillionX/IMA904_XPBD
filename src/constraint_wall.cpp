@@ -12,7 +12,7 @@ WallConstraint::WallConstraint(ParticlePtr q, Vector3d _p1, Vector3d _p2, Vector
     update();
 }
 
-double WallConstraint::getWidth() const {
+double WallConstraint::getThickness() const {
     return h;
 }
 

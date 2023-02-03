@@ -47,14 +47,6 @@ void init_objects()
 {
     SpherePtr sphere1(new Sphere(0.2, 10.0, 5.0, 10.0, 5.0, GREEN));
     sphere1->vertices[0]->setForce(sphere1->vertices[0]->getMass()*gravity);
-
-
-
-
-
-
-
-    
     constraints.push_back(std::make_shared<WallConstraint>(sphere1->vertices[0], Vector3d(0,0,0), Vector3d(0,0,scene_floor.getDepth()), Vector3d(scene_floor.getWidth(), 0,0), sphere1->getRadius(), compliance));
     constraints.push_back(std::make_shared<WallConstraint>(sphere1->vertices[0], Vector3d(scene_floor.getWidth(), 0,scene_floor.getDepth()), Vector3d(scene_floor.getWidth(), 0,0), Vector3d(0,0,scene_floor.getDepth()), sphere1->getRadius(), compliance));
 

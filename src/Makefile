@@ -8,13 +8,15 @@
 PROG = xpbd_prog
 SPRING = spring
 CLOTH = cloth
+WALL = wall
 
 #
 # Fichiers sources (NE PAS METTRE les .h ni les .o seulement les .cpp)
 #
-SOURCES = main.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp
-SPRING_SOURCES = spring.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp
-CLOTH_SOURCES = demo_cloth.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp
+SOURCES = main.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp constraint_penetration.cpp
+SPRING_SOURCES = spring.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp constraint_penetration.cpp
+CLOTH_SOURCES = demo_cloth.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp constraint_penetration.cpp
+WALL_SOURCES = wall.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp constraint_penetration.cpp
 
 
 #
@@ -24,6 +26,7 @@ BUILDDIR = ../build
 OBJETS = ${SOURCES:%.cpp=$(BUILDDIR)/%.o}
 SPRING_OBJETS = ${SPRING_SOURCES:%.cpp=$(BUILDDIR)/%.o}
 CLOTH_OBJETS = ${CLOTH_SOURCES:%.cpp=$(BUILDDIR)/%.o}
+WALL_OBJETS = ${WALL_SOURCES:%.cpp=$(BUILDDIR)/%.o}
 
 
 #
@@ -59,11 +62,10 @@ LDLIBS = -lGL -lGLU -lglut -lpthread
 # depend-${PROG} sera un fichier contenant les dependances
 #
  
-all: ${PROG} ${SPRING} ${CLOTH}
+all: ${PROG} ${SPRING} ${CLOTH} ${WALL}
 
 run: ${PROG}
 	./${PROG}
-
 
 ${PROG}: depend-${PROG} ${OBJETS}
 	${CXX} -o $@ ${CXXFLAGS} ${LDFLAGS} ${OBJETS} ${LDLIBS}
@@ -74,11 +76,14 @@ ${SPRING}: depend-${SPRING} ${SPRING_OBJETS}
 ${CLOTH}: depend-${CLOTH} ${CLOTH_OBJETS}
 	${CXX} -o $@ ${CXXFLAGS} ${LDFLAGS} ${CLOTH_OBJETS} ${LDLIBS}
 
+${WALL}: depend-${WALL} ${WALL_OBJETS}
+	${CXX} -o $@ ${CXXFLAGS} ${LDFLAGS} ${WALL_OBJETS} ${LDLIBS}
+
 clean:
-	-@$(RM) -r $(BUILDDIR) depend-${PROG} depend-${SPRING} depend-${CLOTH} core 1>/dev/null 2>&1
+	-@$(RM) -r $(BUILDDIR) depend-${PROG} depend-${SPRING} depend-${CLOTH} depend-${WALL} core 1>/dev/null 2>&1
 
 clean-all: clean
-	-@$(RM) ${PROG} -${SPRING} -${CLOTH} 1>/dev/null 2>&1
+	-@$(RM) ${PROG} -${SPRING} -${CLOTH} -${WALL} 1>/dev/null 2>&1
   
 
 # Gestion des dependances : creation automatique des dependances en utilisant 
@@ -93,7 +98,8 @@ depend-${SPRING}:
 depend-${CLOTH}:
 	${CXX} ${CXXFLAGS} -MM ${CLOTH_SOURCES} > depend-${CLOTH}
 
-
+depend-${WALL}:
+	${CXX} ${CXXFLAGS} -MM ${WALL_SOURCES} > depend-${WALL}
 ###########################################
 #
 # Regles implicites
@@ -123,3 +129,4 @@ $(BUILDDIR)/%.o: %.cpp
 -include depend-${PROG}
 -include depend-${SPRING}
 -include depend-${CLOTH}
+-include depend-${WALL}
