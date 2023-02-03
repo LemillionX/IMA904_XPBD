@@ -12,6 +12,7 @@ class Sphere : public Object {
         ~Sphere(){};
 
         void draw() const override ;
+        double getRadius() const {return radius;}
 };
 
 #endif

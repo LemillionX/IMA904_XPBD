@@ -12,9 +12,9 @@ CLOTH = cloth
 #
 # Fichiers sources (NE PAS METTRE les .h ni les .o seulement les .cpp)
 #
-SOURCES = main.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp
-SPRING_SOURCES = spring.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp constraint_isobending.cpp constraint_bending.cpp
-CLOTH_SOURCES = demo_cloth.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp
+SOURCES = main.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp
+SPRING_SOURCES = spring.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp
+CLOTH_SOURCES = demo_cloth.cpp pbd.cpp particle.cpp constraint.cpp constraint_dist.cpp sphere.cpp constraint_fixed.cpp cloth.cpp constraint_isobending.cpp constraint_bending.cpp constraint_wall.cpp
 
 
 #

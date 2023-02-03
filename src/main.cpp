@@ -25,10 +25,10 @@ GLfloat MAGENTA[] = {1, 0, 1};
 const int FPS = 200;
 const float dt = 1000 / FPS; // in ms, e.g : 1000/frame rate
 const Vector3d gravity(0.0, -9.81, 0.0);
-const double compliance = 0.01; // compliance coeff for XPBD
+const double compliance = 0.0001; // compliance coeff for XPBD
 const int N_ITER = 40;
 const float SPEED_DAMPING = 0.995;
-const int CLOTH_RESOLUTION = 12; 
+const int CLOTH_RESOLUTION = 10; 
 const double CLOTH_SIZE = 2;
 unsigned int TIME = 0;
 
@@ -45,47 +45,13 @@ std::vector<ConstraintPtr> constraints;
 
 void init_objects()
 {
-    //SpherePtr sphere1(new Sphere(0.2, 10.0, 1.0, 10.0, 1.0, GREEN));
-    //SpherePtr sphere2(new Sphere(0.2, 10.0, 3.0, 10.0, 1.0, BLUE));
-    //sphere1->vertices[0]->setForce(sphere1->vertices[0]->getMass()*gravity);
-    //sphere2->vertices[0]->setForce(sphere2->vertices[0]->getMass()*gravity);
-    ClothPtr cloth1(new Cloth(CLOTH_RESOLUTION, CLOTH_RESOLUTION, 11.0, 3.5, 8.0, 1.0, MAGENTA, CLOTH_SIZE/CLOTH_RESOLUTION));
+    SpherePtr sphere1(new Sphere(0.2, 10.0, 5.0, 10.0, 5.0, GREEN));
+    sphere1->vertices[0]->setForce(sphere1->vertices[0]->getMass()*gravity);
+    constraints.push_back(std::make_shared<WallConstraint>(sphere1->vertices[0], Vector3d(0,0,0), Vector3d(0,0,scene_floor.getDepth()), Vector3d(scene_floor.getWidth(), 0,0), sphere1->getRadius(), compliance));
+    constraints.push_back(std::make_shared<WallConstraint>(sphere1->vertices[0], Vector3d(scene_floor.getWidth(), 0,scene_floor.getDepth()), Vector3d(scene_floor.getWidth(), 0,0), Vector3d(0,0,scene_floor.getDepth()), sphere1->getRadius(), compliance));
 
-    //lst_objects.push_back(sphere1);
-    //lst_objects.push_back(sphere2);
-    lst_objects.push_back(cloth1);
+    lst_objects.push_back(sphere1);
 
-    // Fixed Constraint
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[0], cloth1->vertices[0]->getPos()));
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[cloth1->getWidth()-1], cloth1->vertices[cloth1->getWidth()-1]->getPos()));
-    int w = cloth1->getWidth();
-
-    for (int i = 0; i < cloth1->vertices.size(); i++){
-        // Add force
-        cloth1->vertices[i]->setForce(cloth1->vertices[i]->getMass()*gravity);
-
-        // Vertical stretch
-        if (i < (cloth1->getLength()-1)*w ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+w], (cloth1->vertices[i+w]->getPos() - cloth1->vertices[i]->getPos() ).norm(), compliance));
-        }
-
-        // Horizontal stretch
-        if (i% w < w -1 ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+1], (cloth1->vertices[i+1]->getPos() - cloth1->vertices[i]->getPos()).norm(), compliance));
-        } 
-
-        // Bending
-        if ((i%w < w-1) && (i < (cloth1->getLength()-1)*w)){
-            constraints.push_back(std::make_shared<BendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.5));
-            //constraints.push_back(std::make_shared<IsobendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.1));
-        }
-
-    }
-
-    // Fixed Constraint
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[0], cloth1->vertices[0]->getPos()));
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[w-1], cloth1->vertices[w-1]->getPos()));
-    
 }
 
 void init_constraints()
@@ -129,7 +95,6 @@ void update(double _dt){
             old_pos.push_back(vertex->getPos()); // Store old position
             vertex->setSpeed(vertex->getSpeed() + _dt*vertex->getForce()*vertex->getInvMass()); // Implicit Euler
             vertex->setPos(vertex->getPos() + _dt*vertex->getSpeed()); // Implicit Euler
-            //vertex->setSpeed(SPEED_DAMPING*vertex->getSpeed());// Damping for speed
         }
     }
 

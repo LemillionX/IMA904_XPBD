@@ -40,6 +40,8 @@ public:
   void draw() {
     glCallList(displayListId);
   }
+  double getWidth() const {return width;}
+  double getDepth() const {return depth;}
 };
 
 

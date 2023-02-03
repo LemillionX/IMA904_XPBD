@@ -9,6 +9,7 @@
 #include "constraint_fixed.h"
 #include "constraint_isobending.h"
 #include "constraint_bending.h"
+#include "constraint_wall.h"
 
 class PBD {
 };

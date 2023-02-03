@@ -72,7 +72,7 @@ MatrixXd Constraint::getGradient() const {
 void Constraint::solveConstraint(double dt) {
     if (type != FIXED_CONSTRAINT){
         if (abs(value) > 1e-08){
-            if (type == EQUALITY || (type == INEQUALITY && value < -1e-08)){
+            if (type == EQUALITY || (type == INEQUALITY && value < 0)){
                 double alpha_t = alpha/(dt*dt);
                 double num = -value - alpha_t *lambda;
                 double denom = alpha_t;
@@ -85,7 +85,7 @@ void Constraint::solveConstraint(double dt) {
                 // Updating lambda and x
                 // Don't forget to store the particle at the GLOBAL solving before
                 double deltaLambda = 0.0;
-                if (denom != 0.0){
+                if (denom > 1e-08){
                     deltaLambda = num/denom;
                 }
                 for (size_t i = 0; i < particles.size(); i ++){
@@ -96,7 +96,6 @@ void Constraint::solveConstraint(double dt) {
 
                 setLagrangeMultiplier(lambda + deltaLambda);
             }
-
         }
     }
 

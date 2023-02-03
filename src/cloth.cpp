@@ -12,7 +12,7 @@ Cloth::Cloth(int _width, int _length, double x, double y, double z, double _m, G
     {
         for (int j = 0; j < width; j++)
         {
-            vertices.push_back(std::make_shared<Particle>(Particle(pos + Vector3d(-j*step, 0, -i*step), _v, _m/(width*length))));
+            vertices.push_back(std::make_shared<Particle>(Particle(pos + Vector3d(-j*step, 0, -i*step), _v, _m*0.01)));
         }
     }
 }

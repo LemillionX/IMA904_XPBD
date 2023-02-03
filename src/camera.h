@@ -21,7 +21,7 @@ public:
   Camera() : x(1), y(3), z(-1), dp(0.2), angleX(0.0), angleY(0.0)
   {
     target_x = x - sin(angleX);
-    target_y = y;
+    target_y = y + sin(angleY);
     target_z = z + cos(angleX);
     up_x = 0;
     up_y = 1;
@@ -40,12 +40,12 @@ public:
   double getAngleY() {return angleY;}
 
   void setX(double _x) { x = _x; target_x = x - sin(angleX);}
-  void setY(double _y) { y = _y; target_y = y - sin(angleY);}
+  void setY(double _y) { y = _y; target_y = y + sin(angleY);}
   void setZ(double _z) { z = _z; target_z = z + cos(angleX);}
   void moveRight() { x -= dp; target_x = x - sin(angleX);}
   void moveLeft() { x += dp; target_x = x - sin(angleX);}
-  void moveUp() { y += dp; target_y = y - sin(angleY);}
-  void moveDown() { y -= dp; target_y = y - sin(angleY);}
+  void moveUp() { y += dp; target_y = y + sin(angleY);}
+  void moveDown() { y -= dp; target_y = y + sin(angleY);}
   void moveForward() { z += dp; target_z = z + cos(angleX);}
   void moveBack() { z -= dp; target_z = z + cos(angleX);}
   void setAngleX(double _angleX) { angleX = _angleX; setX(getX()); setZ(getZ());}
