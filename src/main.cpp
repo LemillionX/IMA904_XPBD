@@ -25,9 +25,9 @@ GLfloat MAGENTA[] = {1, 0, 1};
 const int FPS = 200;
 const float dt = 1000/FPS; // in ms, e.g : 1000/frame rate
 const Vector3d gravity(0.0, -9.81, 0.0);
-const double compliance = 0.0; // compliance coeff for XPBD
-const double compliance_penetration = 0.0; // compliance coeff for XPBD
-const double compliance_collision = 0.0; // compliance coeff for XPBD
+const double compliance = 0.01; // compliance coeff for cloth
+const double compliance_penetration = 0.0; // compliance coeff for ball collision with cloth
+const double compliance_collision = 0.0; // compliance coeff for ball collistion with ball
 const int N_ITER = 40;
 const float SPEED_DAMPING = 0.995;
 const int CLOTH_RESOLUTION = 15; 
@@ -110,17 +110,7 @@ void init_objects()
 
 }
 
-void init_constraints()
-{
-    //constraints.push_back(std::make_shared<DistConstraint>(lst_objects[0]->vertices[0], lst_objects[1]->vertices[0], 1.0, compliance));
-    //constraints.push_back(std::make_shared<FixedConstraint>(lst_objects[1]->vertices[0], lst_objects[1]->vertices[0]->getPos()));
 
-}
-
-void init_guit(){
-    //IMGUI_CHECKVERSION();
-    //ImGui::Text("Coucou");
-}
 
 // Application-specific initialization: Set up global lighting parameters and create display lists.
 void init()
@@ -138,7 +128,6 @@ void init()
     camera.setZ(scene_floor.centerz()-6);
 
     init_objects();
-    init_constraints();
 }
 
 
