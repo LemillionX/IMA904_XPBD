@@ -17,7 +17,11 @@ void Particle::setSpeed(VectorXd _v){
 
 void Particle::setMass(double _m){
     m = _m;
-    w = 1.0/m;
+    if (m == 0){
+        w = 1.0;
+    } else {
+        w = 1.0/m;
+    }
 }
 
 void Particle::setForce(VectorXd _force){

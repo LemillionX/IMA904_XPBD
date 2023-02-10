@@ -58,11 +58,11 @@ void IsobendingConstraint::setGradient() {
 }
 
 void IsobendingConstraint::update(){
-    setHessian();
+    //setHessian();
     double _value = 0.0;
     for (size_t i = 0; i < particles.size(); i++){
         for (size_t j = 0; j < particles.size(); j++){
-            _value += Q(i,j)*particles[i]->getPos().dot(particles[j]->getPos());
+            _value += (Q(i,j)*particles[i]->getPos()).dot(particles[j]->getPos());
         }
     }
     setValue(0.5*_value);

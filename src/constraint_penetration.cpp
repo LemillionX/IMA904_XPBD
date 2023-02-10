@@ -37,6 +37,12 @@ MatrixXd PenetrationConstraint::crossProdGrad_p2(Vector3d _p1, Vector3d _p2) con
     return -(- _pTilde + _n*(_n.cross(_p1).transpose()))/crossNorm;
 }
 
+double triangleArea(Vector3d a, Vector3d b, Vector3d c){
+    Vector3d u = b-a;
+    Vector3d v = c-a;
+    return 0.5*u.cross(v).norm();
+}
+
 void PenetrationConstraint::setGradient(){
     grad = MatrixXd::Zero(3,4);
     
@@ -45,13 +51,20 @@ void PenetrationConstraint::setGradient(){
     Vector3d _p31 = particles[3]->getPos() - particles[1]->getPos();
 
     Vector3d _n = _p21.cross(_p31).normalized();
-    MatrixXd gradP2 = crossProdGrad_p1(_p21, _p31);
-    MatrixXd gradP3 = crossProdGrad_p2(_p21, _p31);
+    double area = triangleArea(particles[1]->getPos(), particles[2]->getPos(), particles[3]->getPos());
 
-    grad.col(0) = _n;
-    grad.col(2) = gradP2.transpose()*_q;
-    grad.col(3) = gradP3.transpose()*_q;
-    grad.col(1) = -grad.col(0) - grad.col(2) - grad.col(3);
+    double alpha = triangleArea(particles[0]->getPos(), particles[2]->getPos(), particles[3]->getPos())/area;
+    double beta = triangleArea(particles[0]->getPos(), particles[3]->getPos(), particles[1]->getPos())/area;
+
+
+        MatrixXd gradP2 = crossProdGrad_p1(_p21, _p31);
+        MatrixXd gradP3 = crossProdGrad_p2(_p21, _p31);
+
+        grad.col(0) = _n;
+        grad.col(2) = gradP2.transpose()*_q;
+        grad.col(3) = gradP3.transpose()*_q;
+        grad.col(1) = -grad.col(0) - grad.col(2) - grad.col(3);
+
 }
 
 void PenetrationConstraint::update(){
@@ -61,5 +74,16 @@ void PenetrationConstraint::update(){
     Vector3d _n = _p21.cross(_p31).normalized();
     
     setValue(_q.dot(_n) - h);
+    // if (value <= 0 ){
+    //     std::cout << "q = " << particles[0]->getPos().transpose() << std::endl;
+    //     std::cout << "p1 = " << particles[1]->getPos().transpose() << std::endl;
+    //     std::cout << "p2 = " << particles[2]->getPos().transpose() << std::endl;
+    //     std::cout << "p3 = " << particles[3]->getPos().transpose() << std::endl;
+    //     std::cout << "q-p1 = " << _q.transpose() << std::endl;
+    //     std::cout << "value = " << value << std::endl;
+    //     std::cout << "n = " << _n.transpose() << std::endl;
+    //     std::cin.get();
+    // }
+
     setGradient();
 }

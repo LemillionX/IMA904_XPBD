@@ -8,6 +8,7 @@
 #include "floor.h"
 #include "sphere.h"
 #include "cloth.h"
+#include "plane.h"
 
 typedef std::shared_ptr<Object> ObjectPtr;
 typedef std::shared_ptr<Constraint> ConstraintPtr;
@@ -25,14 +26,14 @@ GLfloat MAGENTA[] = {1, 0, 1};
 const int FPS = 200;
 const float dt = 1000/FPS; // in ms, e.g : 1000/frame rate
 const Vector3d gravity(0.0, -9.81, 0.0);
-const double compliance = 0.0; // compliance coeff for XPBD
+const double compliance = 0.01; // compliance coeff for XPBD
 const double compliance_penetration = 0.0; // compliance coeff for XPBD
 const double compliance_collision = 0.0; // compliance coeff for XPBD
 const int N_ITER = 40;
-const float SPEED_DAMPING = 0.995;
+const float SPEED_DAMPING = 0.999;
 const int CLOTH_RESOLUTION = 15; 
 const double CLOTH_SIZE = 2;
-const int N_SPHERE = 2;
+const int N_SPHERE = 1;
 const double SPHERE_RADIUS = 0.2;
 unsigned int TIME = 0;
 std::vector<VectorXd> old_pos = {};
@@ -47,79 +48,96 @@ Camera camera;
 Floor scene_floor(20, 20);
 std::vector<ObjectPtr> lst_objects;
 std::vector<ConstraintPtr> constraints;
+double w_max = 11;
+double w_min = 9;
+double h_max = 2.5;
+double h_min = 0.5;
+double d_max = 11;
+double d_min = 7;
+
+Vector3d cubeA(Vector3d(w_max, h_max, d_max));
+Vector3d cubeB(Vector3d(w_max, h_max, d_min));
+Vector3d cubeC(Vector3d(w_min, h_max, d_min));
+Vector3d cubeD(Vector3d(w_min, h_max, d_max));
+Vector3d cubeE(Vector3d(w_max, h_min, d_max));
+Vector3d cubeF(Vector3d(w_max, h_min, d_min));
+Vector3d cubeG(Vector3d(w_min, h_min, d_min));
+Vector3d cubeH(Vector3d(w_min, h_min, d_max));
+
+Plane wallLeft(cubeA, cubeB, cubeF, cubeE);
+Plane wallRight(cubeD, cubeC, cubeG, cubeH);
+Plane wallTop(cubeA, cubeD, cubeC, cubeB);
+Plane wallBottom(cubeE, cubeH, cubeG, cubeF);
+Plane wallBack(cubeA, cubeD, cubeH, cubeE);
+Plane wallFront(cubeB, cubeC, cubeG, cubeF);
+
+GLfloat* rand_color(int key){
+    switch (key)
+    {
+    case 0:
+        return WHITE;
+    case 1:
+        return RED;
+    case 2:
+        return GREEN;
+    case 3:
+        return MAGENTA;
+    case 4:
+        return BLUE;
+    }
+}
+
+
+void init_ball(){
+    SpherePtr sphere(new Sphere(SPHERE_RADIUS, 10.0 , 2.0, 9.0, 5.0, rand_color(random()%5), Vector3d(0.1*(random()%100-50),0.1*(random()%100-50),0.1*(random()%100))));
+
+    // Gravity
+    sphere->vertices[0]->setForce(sphere->vertices[0]->getMass()*gravity);
+
+    // Sphere Floor constraint
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], Vector3d(0,0,0), Vector3d(0,0,scene_floor.getDepth()), Vector3d(scene_floor.getWidth(), 0,0), SPHERE_RADIUS, 0));
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], Vector3d(scene_floor.getWidth(), 0,scene_floor.getDepth()), Vector3d(scene_floor.getWidth(), 0,0), Vector3d(0,0,scene_floor.getDepth()), SPHERE_RADIUS, 0));
+
+    // Bottom wall collision
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallBottom.getP0(), wallBottom.getP3(), wallBottom.getP1(), SPHERE_RADIUS, 0));
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallBottom.getP1(), wallBottom.getP3(), wallBottom.getP2(), SPHERE_RADIUS, 0));
+    // Top wall collision
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallTop.getP0(), wallTop.getP1(), wallTop.getP3(), SPHERE_RADIUS, 0));
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallTop.getP1(), wallTop.getP2(), wallTop.getP3(), SPHERE_RADIUS, 0));
+    // Right wall collision
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallRight.getP0(), wallRight.getP3(), wallRight.getP1(), SPHERE_RADIUS, 0));
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallRight.getP2(), wallRight.getP1(), wallRight.getP3(), SPHERE_RADIUS, 0));
+    // Left wall collision
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallLeft.getP0(), wallLeft.getP1(), wallLeft.getP3(), SPHERE_RADIUS, 0));
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallLeft.getP2(), wallLeft.getP3(), wallLeft.getP1(), SPHERE_RADIUS, 0));
+    // Back wall collision
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallBack.getP0(), wallBack.getP3(), wallBack.getP1(), SPHERE_RADIUS, 0));
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallBack.getP2(), wallBack.getP1(), wallBack.getP3(), SPHERE_RADIUS, 0));
+    // Front wall collision
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallFront.getP0(), wallFront.getP1(), wallFront.getP3(), SPHERE_RADIUS, 0));
+    constraints.push_back(std::make_shared<WallConstraint>(sphere->vertices[0], wallFront.getP2(), wallFront.getP3(), wallFront.getP1(), SPHERE_RADIUS, 0));
+
+    for (int i =0; i < lst_objects.size(); i++){
+        // Sphere collision
+        constraints.push_back(std::make_shared<CollisionConstraint>(lst_objects[i]->vertices[0], sphere->vertices[0], 2.1*SPHERE_RADIUS, compliance_collision));
+    }
+
+
+    lst_objects.push_back(sphere);
+}
 
 void init_objects()
 {
-
     for (int i =0; i < N_SPHERE; i++){
-        lst_objects.push_back(std::make_shared<Sphere>(SPHERE_RADIUS, 10.25- 2.0*i/N_SPHERE , 5.0, 9.0, 5.0, GREEN));
-
-        // Gravity
-        lst_objects[i]->vertices[0]->setForce(lst_objects[i]->vertices[0]->getMass()*gravity);
-
-        // Sphere Floor constraint
-        constraints.push_back(std::make_shared<WallConstraint>(lst_objects[i]->vertices[0], Vector3d(0,0,0), Vector3d(0,0,scene_floor.getDepth()), Vector3d(scene_floor.getWidth(), 0,0), SPHERE_RADIUS, 0));
-        constraints.push_back(std::make_shared<WallConstraint>(lst_objects[i]->vertices[0], Vector3d(scene_floor.getWidth(), 0,scene_floor.getDepth()), Vector3d(scene_floor.getWidth(), 0,0), Vector3d(0,0,scene_floor.getDepth()), SPHERE_RADIUS, 0));
+        init_ball();
     }
-
-    ClothPtr cloth1(new Cloth(CLOTH_RESOLUTION, CLOTH_RESOLUTION, 10.5, 3.5, 10.0, 1.0, MAGENTA, CLOTH_SIZE/CLOTH_RESOLUTION));
-
-
-    // Cloth Fixed Constraint
-    int w = cloth1->getWidth();
-    int l = cloth1->getLength();
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[0], cloth1->vertices[0]->getPos()));
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[w-1], cloth1->vertices[w-1]->getPos()));
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[(l-1)*w], cloth1->vertices[(l-1)*w]->getPos()));
-    constraints.push_back(std::make_shared<FixedConstraint>(cloth1->vertices[l*w-1], cloth1->vertices[l*w-1]->getPos()));
-
-    for (int i = 0; i < cloth1->vertices.size(); i++){
-        // Add force
-        cloth1->vertices[i]->setForce(cloth1->vertices[i]->getMass()*gravity);
-
-        // Vertical stretch
-        if (i < (cloth1->getLength()-1)*w ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+w], (cloth1->vertices[i+w]->getPos() - cloth1->vertices[i]->getPos() ).norm(), compliance));
-        }
-
-        // Horizontal stretch
-        if (i% w < w -1 ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+1], (cloth1->vertices[i+1]->getPos() - cloth1->vertices[i]->getPos()).norm(), compliance));
-        } 
-
-        // Bending and Penetration
-        if ((i%w < w-1) && (i < (cloth1->getLength()-1)*w)){
-            //constraints.push_back(std::make_shared<BendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.0));
-            constraints.push_back(std::make_shared<IsobendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0));
-            for (int k = 0; k < N_SPHERE; k++){
-                constraints.push_back(std::make_shared<PenetrationConstraint>(lst_objects[k]->vertices[0], cloth1->vertices[i], cloth1->vertices[i+w], cloth1->vertices[i+1], 1.1*SPHERE_RADIUS, compliance_penetration));
-                constraints.push_back(std::make_shared<PenetrationConstraint>(lst_objects[k]->vertices[0], cloth1->vertices[i+w+1], cloth1->vertices[i+1], cloth1->vertices[i+w], 1.1*SPHERE_RADIUS, compliance_penetration));
-            }
-        }
-
-    }
-    for (int i =0; i < N_SPHERE; i++){
-        // Sphere collision
-        for (int j = 0; j < i; j++){
-            constraints.push_back(std::make_shared<CollisionConstraint>(lst_objects[i]->vertices[0], lst_objects[j]->vertices[0], 2.1*SPHERE_RADIUS, compliance_collision));
-        }
-    }
-
-
-    lst_objects.push_back(cloth1);
-
 }
+
 
 void init_constraints()
 {
-    //constraints.push_back(std::make_shared<DistConstraint>(lst_objects[0]->vertices[0], lst_objects[1]->vertices[0], 1.0, compliance));
-    //constraints.push_back(std::make_shared<FixedConstraint>(lst_objects[1]->vertices[0], lst_objects[1]->vertices[0]->getPos()));
 
-}
 
-void init_guit(){
-    //IMGUI_CHECKVERSION();
-    //ImGui::Text("Coucou");
 }
 
 // Application-specific initialization: Set up global lighting parameters and create display lists.
@@ -195,7 +213,10 @@ void display()
               camera.getUpX(), camera.getUpY(), camera.getUpZ());
 
     scene_floor.draw();
-
+    wallLeft.draw();
+    wallRight.draw();
+    wallTop.draw();
+    wallBottom.draw();
 
     for (auto &obj : lst_objects)
     {
@@ -278,6 +299,9 @@ void special(int key, int, int)
         } else {
             camera.moveDown();
         }
+        break;
+    case GLUT_KEY_F1:
+        init_ball();
         break;
     }
     glutPostRedisplay();
@@ -429,7 +453,7 @@ void test_bending(){
 
 int main(int argc, char **argv)
 {
-    std::cout << " Hello world !" << std::endl;
+    std::cout << " Here is a ball scene !" << std::endl;
     // Init GLUT and create window
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);

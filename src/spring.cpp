@@ -286,7 +286,7 @@ void test_solve_dist_constraint()
 
 int main(int argc, char **argv)
 {
-    std::cout << " Hello world !" << std::endl;
+    std::cout << " Here is a spring scene !" << std::endl;
     // Init GLUT and create window
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);

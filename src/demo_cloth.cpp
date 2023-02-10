@@ -25,10 +25,10 @@ GLfloat MAGENTA[] = {1, 0, 1};
 const int FPS = 200;
 const float dt = 1000 / FPS; // in ms, e.g : 1000/frame rate
 const Vector3d gravity(0.0, -9.81, 0.0);
-const double compliance = 0.01; // compliance coeff for XPBD
+const double compliance = 0.0; // compliance coeff for XPBD
 const int N_ITER = 40;
 const float SPEED_DAMPING = 0.995;
-const int CLOTH_RESOLUTION = 10; 
+const int CLOTH_RESOLUTION = 30; 
 const double CLOTH_SIZE = 2;
 unsigned int TIME = 0;
 
@@ -49,7 +49,7 @@ void init_objects()
     //SpherePtr sphere2(new Sphere(0.2, 10.0, 3.0, 10.0, 1.0, BLUE));
     //sphere1->vertices[0]->setForce(sphere1->vertices[0]->getMass()*gravity);
     //sphere2->vertices[0]->setForce(sphere2->vertices[0]->getMass()*gravity);
-    ClothPtr cloth1(new Cloth(CLOTH_RESOLUTION, CLOTH_RESOLUTION, 11.0, 3.5, 8.0, 1.0, MAGENTA, CLOTH_SIZE/CLOTH_RESOLUTION));
+    ClothPtr cloth1(new Cloth(CLOTH_RESOLUTION, CLOTH_RESOLUTION, 11.0, 3.5, 8.0, 2.0, MAGENTA, CLOTH_SIZE/CLOTH_RESOLUTION));
 
     //lst_objects.push_back(sphere1);
     //lst_objects.push_back(sphere2);
@@ -66,18 +66,18 @@ void init_objects()
 
         // Vertical stretch
         if (i < (cloth1->getLength()-1)*w ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+w], (cloth1->vertices[i+w]->getPos() - cloth1->vertices[i]->getPos() ).norm(), compliance));
+            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+w], CLOTH_SIZE/CLOTH_RESOLUTION, compliance));
         }
 
         // Horizontal stretch
         if (i% w < w -1 ){
-            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+1], (cloth1->vertices[i+1]->getPos() - cloth1->vertices[i]->getPos()).norm(), compliance));
+            constraints.push_back(std::make_shared<DistConstraint>(cloth1->vertices[i], cloth1->vertices[i+1], CLOTH_SIZE/CLOTH_RESOLUTION, compliance));
         } 
 
         // Bending
         if ((i%w < w-1) && (i < (cloth1->getLength()-1)*w)){
-            constraints.push_back(std::make_shared<BendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.5));
-            //constraints.push_back(std::make_shared<IsobendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.1));
+            //constraints.push_back(std::make_shared<BendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.00));
+            //constraints.push_back(std::make_shared<IsobendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.0));
         }
 
     }
@@ -95,10 +95,6 @@ void init_constraints()
 
 }
 
-void init_guit(){
-    //IMGUI_CHECKVERSION();
-    //ImGui::Text("Coucou");
-}
 
 // Application-specific initialization: Set up global lighting parameters and create display lists.
 void init()

@@ -11,6 +11,7 @@
 #include "constraint_bending.h"
 #include "constraint_wall.h"
 #include "constraint_penetration.h"
+#include "constraint_collision.h"
 
 class PBD {
 };

@@ -12,15 +12,13 @@ Cloth::Cloth(int _width, int _length, double x, double y, double z, double _m, G
     {
         for (int j = 0; j < width; j++)
         {
-            vertices.push_back(std::make_shared<Particle>(Particle(pos + Vector3d(-j*step, 0, -i*step), _v, _m*0.01)));
+            vertices.push_back(std::make_shared<Particle>(Particle(pos + Vector3d(-j*step, 0, -i*step), _v, _m/(width*length))));
         }
     }
 }
 
 void Cloth::draw() const
 {
-    GLfloat WHITE[] = {1, 1, 1};
-    GLfloat BLUE[] = {0, 0, 1};
     glBegin(GL_QUADS);
     glNormal3d(0, 0, 1);
     int i; // count
@@ -29,8 +27,6 @@ void Cloth::draw() const
         i = x * width;
         for (int z = 0; z < width - 1; z++)
         {
-            //glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, (x + z) % 2 == 0 ? BLUE : WHITE);
-            //std::cout << "i = " << i << "/" << vertices.size() << std::endl;
             glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
             glVertex3d(vertices[i]->getPos().x(), vertices[i]->getPos().y(), vertices[i]->getPos().z());
             glVertex3d(vertices[i + 1]->getPos().x(), vertices[i + 1]->getPos().y(), vertices[i + 1]->getPos().z());

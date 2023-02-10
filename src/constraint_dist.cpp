@@ -26,5 +26,9 @@ void DistConstraint::setGradient(){
 void DistConstraint::update(){
     double _value = (particles[0]->getPos() - particles[1]->getPos()).norm() - l0;
     setValue(_value);
+    // if (value > 1e04){
+    //     std::cout << "value = " << value << std::endl;
+    //     std::cin.get(); 
+    // }
     setGradient();
 }
