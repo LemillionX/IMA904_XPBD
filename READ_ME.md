@@ -7,6 +7,7 @@ In this project, we implemented an XPBD solver in `C++` with a basic renderer us
 The roadmap for this project was to implement small scenes to play with the different constraints and their parameters. To see those scenes, go to the folder `./src`, and enter in the terminal the commands described in the next subsections.
 
 ### Spring
+![](img/spring.png)
 ```
 make spring
 ./spring
@@ -14,6 +15,7 @@ make spring
 This will compile then execute the `spring.cpp` file which aims to display two particles linked by a distance constraint. One of this particle is fixed.
 
 ### Cloth
+![](img/cloth.png)
 ```
 make cloth
 ./cloth
@@ -21,6 +23,7 @@ make cloth
 This will compile then execute the `demo_cloth.cpp` file which aimes to display a cloth with its top two vertices fixed.
 
 ### Wall
+![](img/wall.png)
 ```
 make wall
 ./wall
@@ -28,6 +31,7 @@ make wall
 This will compile then execute the `wall.cpp` file which displays one bouncing ball
 
 ### Balls
+![](img/ball.png)
 ```
 make ball
 ./ball
@@ -35,6 +39,7 @@ make ball
 This will compile then execute the `ball.cpp` file which displays a bunch of balls that are constrained to stay inside a box. The front face and the back face of the box are not displayed for clarity and visualisation purpose. User can add a ball to the scene by pressing `F1`.
 
 ### Main scene
+![](img/cloth_balloon.png)
 ```
 make run
 ```
