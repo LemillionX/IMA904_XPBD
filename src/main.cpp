@@ -1,6 +1,5 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include <imgui/imgui.h>
 
 #include <cmath>
 #include "pbd.h"
@@ -25,7 +24,7 @@ GLfloat MAGENTA[] = {1, 0, 1};
 const int FPS = 200;
 const float dt = 1000/FPS; // in ms, e.g : 1000/frame rate
 const Vector3d gravity(0.0, -9.81, 0.0);
-const double compliance = 0.01; // compliance coeff for cloth
+const double compliance = 0.0001; // compliance coeff for cloth
 const double compliance_penetration = 0.0; // compliance coeff for ball collision with cloth
 const double compliance_collision = 0.0; // compliance coeff for ball collistion with ball
 const int N_ITER = 40;
@@ -89,8 +88,8 @@ void init_objects()
 
         // Bending and Penetration
         if ((i%w < w-1) && (i < (cloth1->getLength()-1)*w)){
-            //constraints.push_back(std::make_shared<BendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.0));
-            constraints.push_back(std::make_shared<IsobendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0));
+            constraints.push_back(std::make_shared<BendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.0));
+            //constraints.push_back(std::make_shared<IsobendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0));
             for (int k = 0; k < N_SPHERE; k++){
                 constraints.push_back(std::make_shared<PenetrationConstraint>(lst_objects[k]->vertices[0], cloth1->vertices[i], cloth1->vertices[i+w], cloth1->vertices[i+1], 1.1*SPHERE_RADIUS, compliance_penetration));
                 constraints.push_back(std::make_shared<PenetrationConstraint>(lst_objects[k]->vertices[0], cloth1->vertices[i+w+1], cloth1->vertices[i+1], cloth1->vertices[i+w], 1.1*SPHERE_RADIUS, compliance_penetration));

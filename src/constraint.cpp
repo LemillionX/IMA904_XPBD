@@ -72,6 +72,7 @@ MatrixXd Constraint::getGradient() const {
 }
 
 void Constraint::solveConstraint(double dt) {
+    update();
     if (type != FIXED_CONSTRAINT){
         if (abs(value) > 1e-08){
             if (type == EQUALITY || (type == INEQUALITY && value < 1e-06)){

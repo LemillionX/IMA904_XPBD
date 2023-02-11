@@ -1,6 +1,5 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include <imgui/imgui.h>
 
 #include <cmath>
 #include "pbd.h"

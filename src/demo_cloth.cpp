@@ -1,6 +1,5 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include <imgui/imgui.h>
 
 #include <cmath>
 #include "pbd.h"
@@ -28,7 +27,7 @@ const Vector3d gravity(0.0, -9.81, 0.0);
 const double compliance = 0.0; // compliance coeff for XPBD
 const int N_ITER = 40;
 const float SPEED_DAMPING = 0.995;
-const int CLOTH_RESOLUTION = 30; 
+const int CLOTH_RESOLUTION = 20; 
 const double CLOTH_SIZE = 2;
 unsigned int TIME = 0;
 
@@ -76,7 +75,7 @@ void init_objects()
 
         // Bending
         if ((i%w < w-1) && (i < (cloth1->getLength()-1)*w)){
-            //constraints.push_back(std::make_shared<BendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.00));
+            constraints.push_back(std::make_shared<BendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.00));
             //constraints.push_back(std::make_shared<IsobendingConstraint>(cloth1->vertices[i+w], cloth1->vertices[i+1], cloth1->vertices[i], cloth1->vertices[i+w+1], 0.0));
         }
 
